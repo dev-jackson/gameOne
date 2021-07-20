@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+:root {
+	--dark-color-a: #3498DB;
+	--dark-color-b: #5DADE2;
+	--light-color: #e6e9ff;
+	--success-color: #5cb85c;
+	--error-color: #d9534f;
+	--custom-color:  #8e44ad;
+}
+
+body {
+	font-family: 'Roboto', sans-serif;
+	font-size: 16px;
+}
+
+ul {
+	list-style: none;
+}
+
+a {
+	text-decoration: none;
+}
+
+.chat-messages {
+	padding: 30px;
+	max-height: 250px;
+	overflow-y: scroll;
+}
+.chat-messages .message .meta {
+	font-size: 15px;
+	font-weight: bold;
+	color: var(--dark-color-b);
+	opacity: 0.7;
+	margin-bottom: 7px;
+}
+#deck:hover{
+	cursor: pointer;
+}
+
+.hand{
+	display: grid;
+	gap: 1rem;
+	grid-auto-rows: 10.5rem;
+	grid-template-columns: repeat(auto-fill,minmax(6rem, 1fr));
+}
+
+.selected{
+	border: solid 5px var(--custom-color);
+}
+li {
+	display: inline-block;
+  }
+  
+  input[type="checkbox"][id^="cb"] {
+	display: none;
+  }
+  
+  label {
+	border: 1px solid #fff;
+	width: 110%;
+	display: block;
+	position: relative;
+	margin: 10px;
+	cursor: pointer;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+  }
+  
+  label::before {
+	background-color: white;
+	color: white;
+	content: " ";
+	display: block;
+	border-radius: 50%;
+	border: 1px solid grey;
+	position: absolute;
+	top: -5px;
+	left: -5px;
+	width: 25px;
+	height: 25px;
+	text-align: center;
+	line-height: 28px;
+	transition-duration: 0.4s;
+	transform: scale(0);
+  }
+  
+  label img {
+	height: 150px;
+	width: 100px;
+	transition-duration: 0.2s;
+	transform-origin: 50% 50%;
+  }
+  
+  :checked+label {
+	border-color: #ddd;
+  }
+  
+  :checked+label::before {
+	content: "✓";
+	background-color: grey;
+	transform: scale(1);
+  }
+  
+  :checked+label img {
+	transform: scale(0.9);
+	box-shadow: 0 0 5px #333;
+	z-index: -1;
+  }
