@@ -23,7 +23,8 @@ function shuffleCards(cards){
 function addCard(cards){
   indexCard = Math.floor(Math.random() + (cards.length -1));
   codeCard = cards[indexCard]['code'];
+  msgCard = cards[indexCard]['message'];
   cards.splice(indexCard,1);
-  return codeCard;
+  return codeCard,msgCard;
 }
 module.exports = {formatMessage, shuffleCards, addCard};

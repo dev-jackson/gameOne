@@ -2,7 +2,8 @@ const chatForm = document.getElementById('chat-form');
 const chatMessages = document.querySelector('.chat-messages');
 const roomName = document.getElementById('room-name');
 const userList = document.getElementById('users');
-
+const actualNumsCards = document.getElementById('numsCards');
+let turnUser = 0;
 // Get username and room from URL
 const { username, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
@@ -21,10 +22,17 @@ socket.on('roomUsers', ({ room, users }) => {
 
 socket.on('shuffle', (cardsHand) => {
   cardsHand.forEach((card)=>{
-    addCard(card[0]['code']);
+    addCard(card[0]['code'],card[0]['message']);
   })
 });
 
+socket.on('actualNumDeck', (numsCards)=>{
+  setNumCards(numsCards);
+});
+
+function setNumCards(numCard){
+  actualNumsCards.innerText = numCard;
+}
 // Message from server
 socket.on('message', (message) => {
   console.log(message);
@@ -48,7 +56,9 @@ chatForm.addEventListener('submit', (e) => {
     return false;
   }else{
     card = document.querySelector('.selected');
-    binaryCode = binaryEncode(card.getAttribute('id'));
+    binaryCode = binaryEncode(card.getAttribute('msg'));
+    card.remove();
+    singleSelect = false;
   }
   // Get message text
   // let msg = e.target.elements.msg.value;
@@ -77,7 +87,12 @@ function outputMessage(message) {
   div.appendChild(p);
   const para = document.createElement('p');
   para.classList.add('text');
-  para.innerText = message.text;
+  let verifyBinary = new RegExp(/[01]+/);
+  if(verifyBinary.test(message.text)){
+    para.innerHTML = message.text + " => " + binaryDecode(message.text)
+  }else{
+    para.innerText = message.text;
+  }
   div.appendChild(para);
   document.querySelector('.chat-messages').appendChild(div);
 }
@@ -92,6 +107,7 @@ function outputUsers(users) {
   userList.innerHTML = '';
   users.forEach((user) => {
     const li = document.createElement('li');
+    li.setAttribute('class', 'row');
     li.innerText = user.username;
     userList.appendChild(li);
   });
@@ -109,7 +125,7 @@ document.getElementById('deck').addEventListener('click',()=>{
   socket.emit('newCard');
 });
 
-function addCard(nameOfCard){
+function addCard(nameOfCard,msgOfCard){
   const li = document.createElement('li');
   const input = document.createElement('input');
   input.type = "checkbox";
@@ -117,13 +133,13 @@ function addCard(nameOfCard){
   const label = document.createElement('label');
   const image = document.createElement('img');
   image.src = `./images/${nameOfCard}.png`;
-  image.setAttribute('id', nameOfCard);
-  image.setAttribute('onclick',"addSelectedCard(this.id)")
+  li.setAttribute('id', nameOfCard);
+  li.setAttribute('msg', msgOfCard);
+  li.setAttribute('onclick',"addSelectedCard(this.id)")
   label.appendChild(image);
   //li.appendChild(input);
   li.appendChild(label);
-  document.querySelector('.hand').appendChild(label);
-  console.log(li);
+  document.querySelector('.hand').appendChild(li);
 }
 
 // function shuffle(){
@@ -153,10 +169,11 @@ function addSelectedCard(idHtmlCard){
   }
 }
 
+
 function binaryEncode(text){
-  text - unescape(encodeURIComponent(text));
+  text = unescape(encodeURIComponent(text));
   var chr, i =0 ,l = text.length, out = '';
-  for(var i = 0; i<l; i++){
+  for(; i<l; i++){
     chr = text.charCodeAt( i ).toString( 2 );
     while( chr.length % 8 != 0 ){ chr = '0' + chr; }
     out += chr;
@@ -165,10 +182,10 @@ function binaryEncode(text){
 }
 
 function binaryDecode(binary){
-  var binary = 0, l = binary.length, chr, out = '';
-  for(var i=0 ; i < l; i += 8 ){
+  var i = 0, l = binary.length, chr, out = '';
+  for(; i < l; i += 8 ){
       chr = parseInt( binary.substr( i, 8 ), 2 ).toString( 16 );
       out += '%' + ( ( chr.length % 2 == 0 ) ? chr : '0' + chr );
   }
-  return decodeURIComponent( out );
+  return decodeURIComponent(out);
 }

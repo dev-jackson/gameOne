@@ -15,6 +15,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 var deckCards = cards();
+
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -33,6 +34,7 @@ io.on('connection', socket => {
     //shuffle cardsHand
       io.to(user.id)
       .emit('shuffle', shuffleCards(deckCards));
+
     // Broadcast when a user connects
   
       io.to(user.room)
@@ -46,6 +48,8 @@ io.on('connection', socket => {
       room: user.room,
       users: getRoomUsers(user.room)
     });
+
+    io.to(user.room).emit('actualNumDeck', deckCards.length);
   });
   socket.on('newCard', () =>{
       const user = getCurrentUser(socket.id);
