@@ -8,14 +8,16 @@ const {
   userJoin,
   getCurrentUser,
   userLeave,
-  getRoomUsers
+  getRoomUsers,
+  setTurnUser
 } = require('./utils/users');
+const { version } = require('moment');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 var deckCards = cards();
-
+var turnId;
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -24,9 +26,14 @@ const botName = 'Game One Bot';
 // Run when client connects
 io.on('connection', socket => {
   socket.on('joinRoom', ({ username, room }) => {
-    const user = userJoin(socket.id, username, room);
-
+    let user;
+    if(getRoomUsers() == 0){
+     user = userJoin(socket.id, username, room, true);
+    }else{
+      user = userJoin(socket.io,username,room,false);
+    }
     socket.join(user.room);
+
 
     // Welcome current user
     socket.emit('message', formatMessage(botName, 'Welcome to Game One!'));
@@ -55,12 +62,24 @@ io.on('connection', socket => {
       const user = getCurrentUser(socket.id);
 
       io.to(user.id).emit('addCard', addCard(deckCards));
+      io.to(user.room).emit('actualNumDeck', deckCards.length);
   })
   // Listen for chatMessage
   socket.on('chatMessage', msgBinary => {
     const user = getCurrentUser(socket.id);
-
-    io.to(user.room).emit('message', formatMessage(user.username, msgBinary));
+    //console.log(user);
+    if(user.turn){
+      io.to(user.room).emit('message', formatMessage(user.username, msgBinary));
+      setTurnUser(user.id);
+    }else{
+      io.to(user.room).emit('message',formatMessage(botName, `${user.username} wait your turn`) );
+    }
+    socket.on('turn',()=>{
+      const user = getCurrentUser(socket.id);
+      console.log(user);
+      io.to(user.id)
+        .emit('userTurn', user.turn);
+    });
   });
 
   // Runs when client disconnects

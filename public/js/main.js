@@ -3,7 +3,7 @@ const chatMessages = document.querySelector('.chat-messages');
 const roomName = document.getElementById('room-name');
 const userList = document.getElementById('users');
 const actualNumsCards = document.getElementById('numsCards');
-let turnUser = 0;
+var userTurn = true;
 // Get username and room from URL
 const { username, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
@@ -20,6 +20,7 @@ socket.on('roomUsers', ({ room, users }) => {
   outputUsers(users);
 });
 
+
 socket.on('shuffle', (cardsHand) => {
   cardsHand.forEach((card)=>{
     addCard(card[0]['code'],card[0]['message']);
@@ -35,31 +36,43 @@ function setNumCards(numCard){
 }
 // Message from server
 socket.on('message', (message) => {
-  console.log(message);
+  turnNameUser = message.username;
+  console.log(message, turnNameUser);
+
   outputMessage(message);
 
   // Scroll down
   chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
-socket.on('addCard', (nameCard) =>{
-  addCard(nameCard);
+socket.on('userTurn', (turn)=>{
+  document.querySelector('.status').innerHTML = turn;
+})
+
+socket.on('addCard', (card) =>{
+  console.log(card);
+  addCard(card.code,card.message);
 });
 // Message submit
 chatForm.addEventListener('submit', (e) => {
   e.preventDefault();
-
   let card;
   var binaryCode;
-  if(document.querySelector('.selected') == undefined){
-    alert('Selecione carta');
-    return false;
-  }else{
-    card = document.querySelector('.selected');
-    binaryCode = binaryEncode(card.getAttribute('msg'));
-    card.remove();
-    singleSelect = false;
-  }
+  socket.emit('turn');
+  console.log(userTurn);
+  
+    if(document.querySelector('.selected') == undefined){
+      alert('Selecione carta');
+      return false;
+    }else{
+        console.log(userTurn+"12312312312");
+        card = document.querySelector('.selected');
+        binaryCode = binaryEncode(card.getAttribute('msg'));
+        card.remove();
+    }
+socket.emit('chatMessage', binaryCode);
+socket.emit('turn','');
+console.log(userTurn,"11111");
   // Get message text
   // let msg = e.target.elements.msg.value;
   // msg = msg.trim();
@@ -69,7 +82,7 @@ chatForm.addEventListener('submit', (e) => {
   // }
 
   // Emit message to server
-  socket.emit('chatMessage', binaryCode);
+  //socket.emit('chatMessage', binaryCode);
 
   // Clear input
   // e.target.elements.msg.value = '';
@@ -153,20 +166,16 @@ function addCard(nameOfCard,msgOfCard){
 //     cards.splice(indexCard,1);
 //   }
 // }
-var singleSelect = false;
 function addSelectedCard(idHtmlCard){
   var card = document.getElementById(idHtmlCard);
-  if(card.classList.contains('selected')){
-    card.classList.remove('selected');
-    singleSelect = false;
+  if(document.querySelector('.selected') != undefined){
+    document.querySelector('.selected').classList.remove('selected');
+    card.classList.add('selected');
   }else{
-    if(!singleSelect){
-      card.classList.add('selected');
-      singleSelect = true;
-    }else{
-      alert("Solo puedes selecionar una carta");
-    }
+    card.classList.add('selected');
   }
+  
+  
 }
 
 

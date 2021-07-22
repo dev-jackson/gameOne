@@ -1,8 +1,8 @@
 const users = [];
 
 // Join user to chat
-function userJoin(id, username, room) {
-  const user = { id, username, room };
+function userJoin(id, username, room, turn) {
+  const user = { id, username, room, turn};
 
   users.push(user);
 
@@ -14,6 +14,15 @@ function getCurrentUser(id) {
   return users.find(user => user.id === id);
 }
 
+function setTurnUser(id){
+  return users.forEach((e)=>{
+    if(e.id == id){
+      e.turn = false;
+    }else{
+      e.turn = true;
+    }
+  });
+}
 // User leaves chat
 function userLeave(id) {
   const index = users.findIndex(user => user.id === id);
@@ -32,5 +41,6 @@ module.exports = {
   userJoin,
   getCurrentUser,
   userLeave,
-  getRoomUsers
+  getRoomUsers,
+  setTurnUser
 };
