@@ -80,11 +80,6 @@ io.on('connection', socket => {
     }
   });
 
-  socket.on('userTurn',()=>{
-    const user = getCurrentUser(socket.id);
-    io.to(user.id).emit('turn', user.turn);
-  })
-
 
   // Runs when client disconnects
   socket.on('disconnect', () => {

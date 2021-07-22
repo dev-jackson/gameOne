@@ -102,22 +102,22 @@ function cards(){
         },
         {
             "code": "BP2",
-            "message": "Mas dos cartas azul",
+            "message": "Mas dos cartas Azul",
             "srcImage": "./images/BP2.png"
         },
         {
             "code": "YP2",
-            "message": "Mas dos cartas amarillo",
+            "message": "Mas dos cartas Amarillo",
             "srcImage": "./images/YP2.png"
         },
         {
             "code": "RP2",
-            "message": "Mas dos cartas rojo",
+            "message": "Mas dos cartas Rojo",
             "srcImage": "./images/RP2.png"
         },
         {
             "code": "GP2",
-            "message": "Mas dos cartas verde",
+            "message": "Mas dos cartas Verde",
             "srcImage": "./images/GP2.png"
         },
         {

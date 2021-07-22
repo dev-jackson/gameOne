@@ -60,35 +60,87 @@ socket.on('addCard', (card) =>{
 // Message submit
 chatForm.addEventListener('submit', (e) => {
   e.preventDefault();
+  messages = document.getElementsByClassName('text');
+  var lastMessage;
   let card;
   var binaryCode;
-  var uTurn =true;
-    if(document.querySelector('.selected') == undefined){
+  if(messages.length >= 3){
+    lastMessage = messages[messages.length-1];
+    console.log(lastMessage.getAttribute('id'));
+    if(lastMessage.getAttribute('id') == null){
+      alert("No es su turno");
+      return;
+    }
+    const typeCard= cardColor(lastMessage.getAttribute('id'))
+    console.log(typeCard);
+    if(document.querySelectorAll('.selected') == undefined){
+      alert('Selecione carta');
+      return false;
+    }else{
+          card = document.querySelector('.selected');
+          if(card.getAttribute('msg').includes(typeCard[0] ||
+          card.getAttribute('msg').includes(typeCard)[1])){
+            binaryCode = binaryEncode(card.getAttribute('msg'));
+            card.remove();
+            socket.emit('userTurn');
+          socket.emit('chatMessage', binaryCode);
+          }else{
+            alert('selecione carda del mismo color');
+          }
+    }
+  }
+  else{
+    if(document.querySelectorAll('.selected') == undefined){
       alert('Selecione carta');
       return false;
     }else{
           card = document.querySelector('.selected');
           binaryCode = binaryEncode(card.getAttribute('msg'));
           card.remove();
+          socket.emit('userTurn');
+    socket.emit('chatMessage', binaryCode);
     }
-socket.emit('userTurn');
-socket.emit('chatMessage', binaryCode);
-  // Get message text
-  // let msg = e.target.elements.msg.value;
-  // msg = msg.trim();
-
-  // if (!msg) {
-  //   return false;
-  // }
-
-  // Emit message to server
-  //socket.emit('chatMessage', binaryCode);
-
-  // Clear input
-  // e.target.elements.msg.value = '';
-  // e.target.elements.msg.focus();
+  }
 });
 
+function cardColor(text){
+  if(text.includes('Amarillo')){
+    if(text.includes('Bloqueo')){
+
+    }
+    if(text.includes('dos')){
+
+    }
+    return "Amarillo";
+  }
+  if(text.includes('Rojo') || text.includes('Roja')){
+    if(text.includes('Bloqueo')){
+
+    }
+    if(text.includes('dos')){
+      
+    }
+    return "Rojo", "Roja";
+  }
+  if(text.includes('Verde')){
+    if(text.includes('Bloqueo')){
+
+    }
+    if(text.includes('dos')){
+      
+    }
+    return "Verde";
+  }
+  if(text.includes('Azul')){
+    if(text.includes('Bloqueo')){
+
+    }
+    if(text.includes('dos')){
+      
+    }
+    return "Azul";
+  }
+}
 // Output message to DOM
 function outputMessage(message) {
   const div = document.createElement('div');
@@ -103,6 +155,7 @@ function outputMessage(message) {
   let verifyBinary = new RegExp(/[01]+/);
   if(verifyBinary.test(message.text)){
     para.innerHTML = message.text + " => " + binaryDecode(message.text)
+    para.setAttribute('id', binaryDecode(message.text));
   }else{
     para.innerText = message.text;
   }
