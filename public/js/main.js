@@ -3,7 +3,7 @@ const chatMessages = document.querySelector('.chat-messages');
 const roomName = document.getElementById('room-name');
 const userList = document.getElementById('users');
 const actualNumsCards = document.getElementById('numsCards');
-var userTurn = true;
+var userTurn;
 // Get username and room from URL
 const { username, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
@@ -45,10 +45,14 @@ socket.on('message', (message) => {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
-socket.on('userTurn', (turn)=>{
-  document.querySelector('.status').innerHTML = turn;
+socket.on('turn',(turn)=>{
+  btn = document.getElementById('btn')
+  if(turn){
+    btn.disabled = false;
+  }else{
+    btn.disabled = true;
+  }
 })
-
 socket.on('addCard', (card) =>{
   console.log(card);
   addCard(card.code,card.message);
@@ -58,21 +62,17 @@ chatForm.addEventListener('submit', (e) => {
   e.preventDefault();
   let card;
   var binaryCode;
-  socket.emit('turn');
-  console.log(userTurn);
-  
+  var uTurn =true;
     if(document.querySelector('.selected') == undefined){
       alert('Selecione carta');
       return false;
     }else{
-        console.log(userTurn+"12312312312");
-        card = document.querySelector('.selected');
-        binaryCode = binaryEncode(card.getAttribute('msg'));
-        card.remove();
+          card = document.querySelector('.selected');
+          binaryCode = binaryEncode(card.getAttribute('msg'));
+          card.remove();
     }
+socket.emit('userTurn');
 socket.emit('chatMessage', binaryCode);
-socket.emit('turn','');
-console.log(userTurn,"11111");
   // Get message text
   // let msg = e.target.elements.msg.value;
   // msg = msg.trim();

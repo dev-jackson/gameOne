@@ -69,18 +69,22 @@ io.on('connection', socket => {
     const user = getCurrentUser(socket.id);
     //console.log(user);
     if(user.turn){
-      io.to(user.room).emit('message', formatMessage(user.username, msgBinary));
       setTurnUser(user.id);
+      io.to(user.room).emit('message', formatMessage(user.username, msgBinary));
+      io.to(user.id).emit('turn', user.turn);
+      nextUser = getRoomUsers(user.room).find(u=>u.id!=user.id);
+      io.to(nextUser.id).emit('turn', nextUser.turn);
     }else{
-      io.to(user.room).emit('message',formatMessage(botName, `${user.username} wait your turn`) );
+      io.to(user.room).emit('message',formatMessage(botName, `${user.username} wait your turn`) ); 
+      io.to(user.id).emit('turn', user.turn); 
     }
-    socket.on('turn',()=>{
-      const user = getCurrentUser(socket.id);
-      console.log(user);
-      io.to(user.id)
-        .emit('userTurn', user.turn);
-    });
   });
+
+  socket.on('userTurn',()=>{
+    const user = getCurrentUser(socket.id);
+    io.to(user.id).emit('turn', user.turn);
+  })
+
 
   // Runs when client disconnects
   socket.on('disconnect', () => {
